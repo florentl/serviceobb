@@ -1,5 +1,9 @@
 package com.wcs.serviceobb;
 
+import android.content.Context;
+import android.os.Environment;
+import android.os.storage.OnObbStateChangeListener;
+import android.os.storage.StorageManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +22,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import com.wcs.serviceobb.obbmanager.OBBManager;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,6 +68,20 @@ public class MainActivity extends AppCompatActivity {
             }
         } );
 
+        //OBB
+        final Context appContext = getApplicationContext();
+        StorageManager storageManager=
+                (StorageManager) appContext.getSystemService(STORAGE_SERVICE);
+        storageManager.mountObb( OBBManager.getOBBPath(getApplicationContext(), 1 ), "serviceobb",
+                new OnObbStateChangeListener() {
+            @Override
+            public void onObbStateChange(String path, int state) {
+                super.onObbStateChange( path, state );
+                    if(OnObbStateChangeListener.MOUNTED == state) {
+                        Log.d( "OBB MOUNTED", "OBB MOUNTED !!!!!!!!!!!!!!!!!!" );
+                    }
+            }
+        });
     }
 
 
