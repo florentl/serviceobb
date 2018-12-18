@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,9 +24,20 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.wcs.serviceobb.obbmanager.OBBManager;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -66,22 +78,34 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make( view, "Replace with your own action", Snackbar.LENGTH_LONG )
                         .setAction( "Action", null ).show();
             }
-        } );
+        });
+
 
         //OBB
         final Context appContext = getApplicationContext();
-        StorageManager storageManager=
-                (StorageManager) appContext.getSystemService(STORAGE_SERVICE);
-        storageManager.mountObb( OBBManager.getOBBPath(getApplicationContext(), 1 ), "serviceobb",
-                new OnObbStateChangeListener() {
+        OnObbStateChangeListener listener = new OnObbStateChangeListener() {
             @Override
             public void onObbStateChange(String path, int state) {
                 super.onObbStateChange( path, state );
-                    if(OnObbStateChangeListener.MOUNTED == state) {
-                        Log.d( "OBB MOUNTED", "OBB MOUNTED !!!!!!!!!!!!!!!!!!" );
+                if(OnObbStateChangeListener.MOUNTED == state) {
+                    Log.d( "OBB MOUNTED", "OBB MOUNTED !!!!!!!!!!!!!!!!!!" );
+
+                    /* TEST RECUPERATION DU FICHIER JSON
+                    final File fileFromObb = OBBManager.getFileFromObb( appContext, "data.json" );
+                    Log.d("file","FILE loaded");
+
+                    try {
+                        BufferedReader bufferedReader = new BufferedReader(new FileReader(fileFromObb.getPath()));
+                        HashMap jsonMap = new Gson().fromJson(bufferedReader, HashMap.class);
+                        Log.d( "JSON STR", String.valueOf( jsonMap.size() ));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
+                    */
+                }
             }
-        });
+        };
+        OBBManager.mount( appContext, listener );
     }
 
 
